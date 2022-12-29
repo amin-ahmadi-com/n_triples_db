@@ -1,3 +1,7 @@
+## 0.1.0
+
+* Using indexes
+
 ## 0.0.3
 
 * deps updated

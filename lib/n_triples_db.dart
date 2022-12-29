@@ -28,6 +28,12 @@ class NTriplesDb {
     );
 
     _db.execute(
+      "CREATE INDEX IF NOT EXISTS terms_idx "
+      "ON terms "
+      "(uuid, termType, value, languageTag, dataType)",
+    );
+
+    _db.execute(
       "CREATE TABLE IF NOT EXISTS graph"
       "("
       "subject TEXT NOT NULL,"
@@ -35,6 +41,12 @@ class NTriplesDb {
       "object TEXT NOT NULL,"
       "PRIMARY KEY (subject, predicate, object)"
       ")",
+    );
+
+    _db.execute(
+      "CREATE INDEX IF NOT EXISTS graph_idx "
+      "ON graph "
+      "(subject, predicate, object)",
     );
   }
 
