@@ -1,7 +1,7 @@
 name: n_triples_db
-description: A new Flutter package project.
+description: N-Triples in SQLite
 version: 0.0.1
-homepage:
+homepage: https://github.com/amin-ahmadi-com/n_triples_db
 
 environment:
   sdk: '>=2.18.6 <3.0.0'
