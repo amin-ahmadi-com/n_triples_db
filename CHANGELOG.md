@@ -1,3 +1,7 @@
+## 0.0.3
+
+* deps updated
+
 ## 0.0.2
 
 * deps updated
