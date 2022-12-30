@@ -1,8 +1,4 @@
-## 0.1.2
-
-* deps updated
-
-## 0.1.1
+## 0.1.1 - 0.1.5
 
 * deps updated
 
