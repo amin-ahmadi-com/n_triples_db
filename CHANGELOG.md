@@ -1,3 +1,8 @@
+## 0.1.6
+
+* Improved indexes
+* Using sha256 hash instead of UUIDs
+
 ## 0.1.1 - 0.1.5
 
 * deps updated
