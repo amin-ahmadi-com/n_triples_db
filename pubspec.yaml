@@ -1,6 +1,6 @@
 name: n_triples_db
 description: N-Triples in SQLite
-version: 0.1.6
+version: 0.1.5
 homepage: https://github.com/amin-ahmadi-com/n_triples_db
 
 environment:
@@ -11,7 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
   sqlite3: ^1.9.1
-  n_triples_parser: ^0.2.13
+  n_triples_parser: ^0.2.11
+  uuid: ^3.0.7
   tuple: ^2.0.1
 
 dev_dependencies:

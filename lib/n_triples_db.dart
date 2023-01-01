@@ -1,12 +1,14 @@
 library n_triples_db;
 
 import 'package:flutter/foundation.dart';
-import 'package:n_triples_parser/n_triples_types.dart';
+import 'package:n_triples_parser/n_triple_types.dart';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:tuple/tuple.dart';
+import 'package:uuid/uuid.dart';
 
 class NTriplesDb {
   late Database _db;
+  final _uuid = const Uuid();
 
   NTriplesDb(Database db) {
     _db = db;
@@ -17,7 +19,7 @@ class NTriplesDb {
     _db.execute(
       "CREATE TABLE IF NOT EXISTS terms"
       "("
-      "hash TEXT NOT NULL PRIMARY KEY,"
+      "uuid TEXT NOT NULL PRIMARY KEY,"
       "termType TEXT NOT NULL,"
       "value TEXT NOT NULL,"
       "languageTag TEXT NOT NULL,"
@@ -26,9 +28,9 @@ class NTriplesDb {
     );
 
     _db.execute(
-      "CREATE INDEX IF NOT EXISTS terms_idx_hash "
+      "CREATE INDEX IF NOT EXISTS terms_idx "
       "ON terms "
-      "(hash)",
+      "(uuid, termType, value, languageTag, dataType)",
     );
 
     _db.execute(
@@ -42,59 +44,39 @@ class NTriplesDb {
     );
 
     _db.execute(
-      "CREATE INDEX IF NOT EXISTS graph_idx_subject "
-      "ON graph "
-      "(subject)",
-    );
-
-    _db.execute(
-      "CREATE INDEX IF NOT EXISTS graph_idx_predicate "
-      "ON graph "
-      "(predicate)",
-    );
-
-    _db.execute(
-      "CREATE INDEX IF NOT EXISTS graph_idx_object "
-      "ON graph "
-      "(object)",
-    );
-
-    _db.execute(
-      "CREATE INDEX IF NOT EXISTS graph_idx_all "
+      "CREATE INDEX IF NOT EXISTS graph_idx "
       "ON graph "
       "(subject, predicate, object)",
     );
   }
 
-  String insertOrReplaceNTripleTerm(NTripleTerm term) {
-    // calculate once
-    final hash = term.hashDigest;
-
+  String insertNTripleTerm(NTripleTerm term) {
+    final result = _uuid.v4();
     final statement = _db.prepare(
-      "INSERT OR REPLACE INTO terms "
-      "(hash, termType, value, languageTag, dataType) "
+      "INSERT INTO terms "
+      "(uuid, termType, value, languageTag, dataType) "
       "VALUES "
       "(?,?,?,?,?)",
     );
 
     statement.execute([
-      hash,
+      result,
       describeEnum(term.termType!),
       term.value,
       term.languageTag,
       term.dataType,
     ]);
 
-    return hash;
+    return result;
   }
 
-  NTripleTerm? selectNTripleTerm(String hash) {
+  NTripleTerm? selectNTripleTerm(String uuid) {
     final statement = _db.prepare(
       "SELECT * FROM terms "
-      "WHERE hash = ?",
+      "WHERE uuid = ?",
     );
 
-    final results = statement.select([hash]);
+    final results = statement.select([uuid]);
 
     if (results.isNotEmpty) {
       final row = results.first;
@@ -120,13 +102,37 @@ class NTriplesDb {
     }
   }
 
-  bool termExists(NTripleTerm term) =>
-      selectNTripleTerm(term.hashDigest) != null;
+  String? selectUuid(NTripleTerm term) {
+    final statement = _db.prepare(
+      "SELECT uuid FROM terms "
+      "WHERE termType = ? AND value = ? AND languageTag = ? AND dataType = ?",
+    );
+
+    final results = statement.select([
+      describeEnum(term.termType!),
+      term.value,
+      term.languageTag,
+      term.dataType,
+    ]);
+
+    if (results.isNotEmpty) {
+      return results.first["uuid"];
+    } else {
+      return null;
+    }
+  }
+
+  bool termExists(NTripleTerm term) => selectUuid(term) != null;
 
   void insertNTriple(NTriple nt) {
-    final subject = insertOrReplaceNTripleTerm(nt.item1);
-    final predicate = insertOrReplaceNTripleTerm(nt.item2);
-    final object = insertOrReplaceNTripleTerm(nt.item3);
+    String? subject = selectUuid(nt.item1);
+    subject ??= insertNTripleTerm(nt.item1);
+
+    String? predicate = selectUuid(nt.item2);
+    predicate ??= insertNTripleTerm(nt.item2);
+
+    String? object = selectUuid(nt.item3);
+    object ??= insertNTripleTerm(nt.item3);
 
     final statement = _db.prepare(
       "INSERT OR REPLACE INTO graph "
@@ -139,18 +145,6 @@ class NTriplesDb {
   }
 
   Iterable<NTriple> selectNTriples({
-    NTripleTerm? subject,
-    NTripleTerm? predicate,
-    NTripleTerm? object,
-  }) {
-    return selectNTriplesByHash(
-      subject: subject?.hashDigest,
-      predicate: predicate?.hashDigest,
-      object: object?.hashDigest,
-    );
-  }
-
-  Iterable<NTriple> selectNTriplesByHash({
     String? subject,
     String? predicate,
     String? object,
