@@ -1,3 +1,7 @@
+## 0.1.9
+
+* deps updated
+
 ## 0.1.8
 
 * improving indexes
