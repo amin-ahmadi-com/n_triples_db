@@ -1,3 +1,7 @@
+## 0.1.8
+
+* improving indexes
+
 ## 0.1.7
 
 * revert sha56 related changes

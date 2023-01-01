@@ -28,9 +28,15 @@ class NTriplesDb {
     );
 
     _db.execute(
-      "CREATE INDEX IF NOT EXISTS terms_idx "
+      "CREATE INDEX IF NOT EXISTS terms_idx_uuid "
       "ON terms "
-      "(uuid, termType, value, languageTag, dataType)",
+      "(uuid)",
+    );
+
+    _db.execute(
+      "CREATE INDEX IF NOT EXISTS terms_idx_all_but_uuid "
+      "ON terms "
+      "(termType, value, languageTag, dataType)",
     );
 
     _db.execute(
