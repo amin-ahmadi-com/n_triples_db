@@ -1,3 +1,7 @@
+## 0.1.10
+
+* more indexes (perhaps not resource efficient, but fast in every way)
+
 ## 0.1.9
 
 * deps updated
