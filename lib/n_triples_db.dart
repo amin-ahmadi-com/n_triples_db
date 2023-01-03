@@ -256,9 +256,14 @@ class NTriplesDb {
   }
 
   Iterable<Tuple2<String, String>> getPredicatesAndObjects(
-    String subjectUuid,
-  ) {
-    final statement = _db.prepare("SELECT * FROM graph WHERE subject = ?");
+    String subjectUuid, {
+    int limit = 0,
+    int offset = 0,
+  }) {
+    final statement = _db.prepare(
+      "SELECT * FROM graph WHERE subject = ? "
+      "${limit != 0 ? "LIMIT $limit OFFSET $offset" : ""} ",
+    );
     final results = statement.select([subjectUuid]);
 
     return results.map<Tuple2<String, String>>((row) {
@@ -270,9 +275,14 @@ class NTriplesDb {
   }
 
   Iterable<Tuple2<String, String>> getSubjectsAndPredicates(
-    String objectUuid,
-  ) {
-    final statement = _db.prepare("SELECT * FROM graph WHERE object = ?");
+    String objectUuid, {
+    int limit = 0,
+    int offset = 0,
+  }) {
+    final statement = _db.prepare(
+      "SELECT * FROM graph WHERE object = ? "
+      "${limit != 0 ? "LIMIT $limit OFFSET $offset" : ""} ",
+    );
     final results = statement.select([objectUuid]);
 
     return results.map<Tuple2<String, String>>((row) {

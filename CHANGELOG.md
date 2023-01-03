@@ -1,3 +1,7 @@
+## 0.1.13
+
+* Support for limit and offset in more calls
+
 ## 0.1.12
 
 * Switch to UUIDs of relation results
