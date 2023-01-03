@@ -1,3 +1,8 @@
+## 0.1.11
+
+* Search for a term
+* Search for relations (subjects, predicates and objects)
+
 ## 0.1.10
 
 * more indexes (perhaps not resource efficient, but fast in every way)

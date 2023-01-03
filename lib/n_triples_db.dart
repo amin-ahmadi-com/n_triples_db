@@ -194,7 +194,8 @@ class NTriplesDb {
       params.add(object);
     }
     final statement = _db.prepare(
-      "SELECT * FROM graph ${where.isNotEmpty ? "WHERE ${where.join(" AND ")}" : ""}",
+      "SELECT * FROM graph "
+      "${where.isNotEmpty ? "WHERE ${where.join(" AND ")}" : ""}",
     );
 
     final results = statement.select(params);
@@ -203,6 +204,81 @@ class NTriplesDb {
         selectNTripleTerm(row["subject"])!,
         selectNTripleTerm(row["predicate"])!,
         selectNTripleTerm(row["object"])!,
+      );
+    });
+  }
+
+  Iterable<Tuple2<String, NTripleTerm>> searchTermsByValue(
+    String value, {
+    int limit = 0,
+    int offset = 0,
+  }) {
+    if (value.trim().isEmpty) return [];
+
+    final statement = _db.prepare(
+      "SELECT * FROM terms "
+      "WHERE LIKE('%$value%', value) "
+      "ORDER BY value ASC "
+      "${limit != 0 ? "LIMIT $limit OFFSET $offset" : ""} ",
+    );
+
+    final results = statement.select();
+
+    return results.map<Tuple2<String, NTripleTerm>>((row) {
+      NTripleTermType termType;
+      switch (row["termType"]) {
+        case "iri":
+          termType = NTripleTermType.iri;
+          break;
+
+        case "literal":
+          termType = NTripleTermType.literal;
+          break;
+
+        case "blankNode":
+          termType = NTripleTermType.blankNode;
+          break;
+
+        default:
+          throw "Incomprehensible term type `${row["termType"]}`";
+      }
+
+      return Tuple2(
+        row["uuid"],
+        NTripleTerm(
+          termType: termType,
+          value: row["value"],
+          dataType: row["dataType"],
+          languageTag: row["languageTag"],
+        ),
+      );
+    });
+  }
+
+  Iterable<Tuple2<NTripleTerm, NTripleTerm>> getPredicatesAndObjects(
+    String subjectUuid,
+  ) {
+    final statement = _db.prepare("SELECT * FROM graph WHERE subject = ?");
+    final results = statement.select([subjectUuid]);
+
+    return results.map<Tuple2<NTripleTerm, NTripleTerm>>((row) {
+      return Tuple2(
+        selectNTripleTerm(row["predicate"])!,
+        selectNTripleTerm(row["object"])!,
+      );
+    });
+  }
+
+  Iterable<Tuple2<NTripleTerm, NTripleTerm>> getSubjectsAndPredicates(
+    String objectUuid,
+  ) {
+    final statement = _db.prepare("SELECT * FROM graph WHERE object = ?");
+    final results = statement.select([objectUuid]);
+
+    return results.map<Tuple2<NTripleTerm, NTripleTerm>>((row) {
+      return Tuple2(
+        selectNTripleTerm(row["subject"])!,
+        selectNTripleTerm(row["predicate"])!,
       );
     });
   }
