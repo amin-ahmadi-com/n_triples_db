@@ -130,26 +130,31 @@ void main() {
       termType: NTripleTermType.literal,
       value: "amin",
     );
+    final aminUuid = db.insertNTripleTerm(amin);
+
     final drives = NTripleTerm(
       termType: NTripleTermType.literal,
       value: "drives",
     );
+    final drivesUuid = db.insertNTripleTerm(drives);
+
     final car = NTripleTerm(
       termType: NTripleTermType.literal,
       value: "car",
     );
+    final carUuid = db.insertNTripleTerm(car);
 
     db.insertNTriple(NTriple(amin, drives, car));
 
     var results = db.getPredicatesAndObjects(db.selectUuid(amin)!);
     expect(results.length, 1);
-    expect(results.elementAt(0).item1.value, "drives");
-    expect(results.elementAt(0).item2.value, "car");
+    expect(results.elementAt(0).item1, drivesUuid);
+    expect(results.elementAt(0).item2, carUuid);
 
     results = db.getSubjectsAndPredicates(db.selectUuid(car)!);
     expect(results.length, 1);
-    expect(results.elementAt(0).item1.value, "amin");
-    expect(results.elementAt(0).item2.value, "drives");
+    expect(results.elementAt(0).item1, aminUuid);
+    expect(results.elementAt(0).item2, drivesUuid);
 
     results = db.getPredicatesAndObjects(db.selectUuid(drives)!);
     expect(results.length, 0);

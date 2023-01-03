@@ -255,30 +255,30 @@ class NTriplesDb {
     });
   }
 
-  Iterable<Tuple2<NTripleTerm, NTripleTerm>> getPredicatesAndObjects(
+  Iterable<Tuple2<String, String>> getPredicatesAndObjects(
     String subjectUuid,
   ) {
     final statement = _db.prepare("SELECT * FROM graph WHERE subject = ?");
     final results = statement.select([subjectUuid]);
 
-    return results.map<Tuple2<NTripleTerm, NTripleTerm>>((row) {
+    return results.map<Tuple2<String, String>>((row) {
       return Tuple2(
-        selectNTripleTerm(row["predicate"])!,
-        selectNTripleTerm(row["object"])!,
+        row["predicate"]!,
+        row["object"]!,
       );
     });
   }
 
-  Iterable<Tuple2<NTripleTerm, NTripleTerm>> getSubjectsAndPredicates(
+  Iterable<Tuple2<String, String>> getSubjectsAndPredicates(
     String objectUuid,
   ) {
     final statement = _db.prepare("SELECT * FROM graph WHERE object = ?");
     final results = statement.select([objectUuid]);
 
-    return results.map<Tuple2<NTripleTerm, NTripleTerm>>((row) {
+    return results.map<Tuple2<String, String>>((row) {
       return Tuple2(
-        selectNTripleTerm(row["subject"])!,
-        selectNTripleTerm(row["predicate"])!,
+        row["subject"]!,
+        row["predicate"]!,
       );
     });
   }

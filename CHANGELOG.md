@@ -1,3 +1,7 @@
+## 0.1.12
+
+* Switch to UUIDs of relation results
+
 ## 0.1.11
 
 * Search for a term
