@@ -1,3 +1,9 @@
+## 0.2.0
+
+* Cleanup
+* LICENSE updated/fixed
+* Description added
+
 ## 0.1.13
 
 * Support for limit and offset in more calls
