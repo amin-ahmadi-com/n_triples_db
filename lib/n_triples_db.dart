@@ -1,6 +1,3 @@
-library n_triples_db;
-
-import 'package:flutter/foundation.dart';
 import 'package:n_triples_parser/n_triple_types.dart';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:tuple/tuple.dart';
@@ -15,68 +12,68 @@ class NTriplesDb {
     _initializeDb();
   }
 
-  _initializeDb() {
+  void _initializeDb() {
     _db.execute(
       "CREATE TABLE IF NOT EXISTS terms"
-      "("
-      "uuid TEXT NOT NULL PRIMARY KEY,"
-      "termType TEXT NOT NULL,"
-      "value TEXT NOT NULL,"
-      "languageTag TEXT NOT NULL,"
-      "dataType TEXT NOT NULL"
-      ")",
+          "("
+          "uuid TEXT NOT NULL PRIMARY KEY,"
+          "termType TEXT NOT NULL,"
+          "value TEXT NOT NULL,"
+          "languageTag TEXT NOT NULL,"
+          "dataType TEXT NOT NULL"
+          ")",
     );
 
     _db.execute(
       "CREATE INDEX IF NOT EXISTS terms_idx_uuid "
-      "ON terms "
-      "(uuid)",
+          "ON terms "
+          "(uuid)",
     );
 
     _db.execute(
       "CREATE INDEX IF NOT EXISTS terms_idx_value "
-      "ON terms "
-      "(value)",
+          "ON terms "
+          "(value)",
     );
 
     _db.execute(
       "CREATE INDEX IF NOT EXISTS terms_idx_all_but_uuid "
-      "ON terms "
-      "(termType, value, languageTag, dataType)",
+          "ON terms "
+          "(termType, value, languageTag, dataType)",
     );
 
     _db.execute(
       "CREATE TABLE IF NOT EXISTS graph"
-      "("
-      "subject TEXT NOT NULL,"
-      "predicate TEXT NOT NULL,"
-      "object TEXT NOT NULL,"
-      "PRIMARY KEY (subject, predicate, object)"
-      ")",
+          "("
+          "subject TEXT NOT NULL,"
+          "predicate TEXT NOT NULL,"
+          "object TEXT NOT NULL,"
+          "PRIMARY KEY (subject, predicate, object)"
+          ")",
     );
 
     _db.execute(
       "CREATE INDEX IF NOT EXISTS graph_idx "
-      "ON graph "
-      "(subject, predicate, object)",
+          "ON graph "
+          "(subject, predicate, object)",
     );
 
     _db.execute(
       "CREATE INDEX IF NOT EXISTS graph_idx_subject "
-      "ON graph "
-      "(subject)",
+          "ON graph "
+          "(subject)",
     );
 
     _db.execute(
       "CREATE INDEX IF NOT EXISTS graph_idx_predicate "
-      "ON graph "
-      "(predicate)",
+          "ON graph "
+          "(predicate)",
     );
 
     _db.execute(
       "CREATE INDEX IF NOT EXISTS graph_idx_object "
-      "ON graph "
-      "(object)",
+          "ON graph "
+          "(object)",
     );
   }
 
@@ -84,14 +81,14 @@ class NTriplesDb {
     final result = _uuid.v4();
     final statement = _db.prepare(
       "INSERT INTO terms "
-      "(uuid, termType, value, languageTag, dataType) "
-      "VALUES "
-      "(?,?,?,?,?)",
+          "(uuid, termType, value, languageTag, dataType) "
+          "VALUES "
+          "(?,?,?,?,?)",
     );
 
     statement.execute([
       result,
-      describeEnum(term.termType!),
+      term.termType!.name,
       term.value,
       term.languageTag,
       term.dataType,
@@ -103,7 +100,7 @@ class NTriplesDb {
   NTripleTerm? selectNTripleTerm(String uuid) {
     final statement = _db.prepare(
       "SELECT * FROM terms "
-      "WHERE uuid = ?",
+          "WHERE uuid = ?",
     );
 
     final results = statement.select([uuid]);
@@ -135,11 +132,11 @@ class NTriplesDb {
   String? selectUuid(NTripleTerm term) {
     final statement = _db.prepare(
       "SELECT uuid FROM terms "
-      "WHERE termType = ? AND value = ? AND languageTag = ? AND dataType = ?",
+          "WHERE termType = ? AND value = ? AND languageTag = ? AND dataType = ?",
     );
 
     final results = statement.select([
-      describeEnum(term.termType!),
+      term.termType!.name,
       term.value,
       term.languageTag,
       term.dataType,
@@ -166,9 +163,9 @@ class NTriplesDb {
 
     final statement = _db.prepare(
       "INSERT OR REPLACE INTO graph "
-      "(subject, predicate, object) "
-      "VALUES "
-      "(?,?,?)",
+          "(subject, predicate, object) "
+          "VALUES "
+          "(?,?,?)",
     );
 
     statement.execute([subject, predicate, object]);
@@ -195,7 +192,7 @@ class NTriplesDb {
     }
     final statement = _db.prepare(
       "SELECT * FROM graph "
-      "${where.isNotEmpty ? "WHERE ${where.join(" AND ")}" : ""}",
+          "${where.isNotEmpty ? "WHERE ${where.join(" AND ")}" : ""}",
     );
 
     final results = statement.select(params);
@@ -208,18 +205,19 @@ class NTriplesDb {
     });
   }
 
-  Iterable<Tuple2<String, NTripleTerm>> searchTermsByValue(
-    String value, {
+  Iterable<Tuple2<String, NTripleTerm>> searchTermsByValue(String value, {
     int limit = 0,
     int offset = 0,
   }) {
-    if (value.trim().isEmpty) return [];
+    if (value
+        .trim()
+        .isEmpty) return [];
 
     final statement = _db.prepare(
       "SELECT * FROM terms "
-      "WHERE LIKE('%$value%', value) "
-      "ORDER BY value ASC "
-      "${limit != 0 ? "LIMIT $limit OFFSET $offset" : ""} ",
+          "WHERE LIKE('%$value%', value) "
+          "ORDER BY value ASC "
+          "${limit != 0 ? "LIMIT $limit OFFSET $offset" : ""} ",
     );
 
     final results = statement.select();
@@ -255,14 +253,13 @@ class NTriplesDb {
     });
   }
 
-  Iterable<Tuple2<String, String>> getPredicatesAndObjects(
-    String subjectUuid, {
+  Iterable<Tuple2<String, String>> getPredicatesAndObjects(String subjectUuid, {
     int limit = 0,
     int offset = 0,
   }) {
     final statement = _db.prepare(
       "SELECT * FROM graph WHERE subject = ? "
-      "${limit != 0 ? "LIMIT $limit OFFSET $offset" : ""} ",
+          "${limit != 0 ? "LIMIT $limit OFFSET $offset" : ""} ",
     );
     final results = statement.select([subjectUuid]);
 
@@ -274,14 +271,13 @@ class NTriplesDb {
     });
   }
 
-  Iterable<Tuple2<String, String>> getSubjectsAndPredicates(
-    String objectUuid, {
+  Iterable<Tuple2<String, String>> getSubjectsAndPredicates(String objectUuid, {
     int limit = 0,
     int offset = 0,
   }) {
     final statement = _db.prepare(
       "SELECT * FROM graph WHERE object = ? "
-      "${limit != 0 ? "LIMIT $limit OFFSET $offset" : ""} ",
+          "${limit != 0 ? "LIMIT $limit OFFSET $offset" : ""} ",
     );
     final results = statement.select([objectUuid]);
 

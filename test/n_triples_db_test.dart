@@ -56,14 +56,14 @@ void main() {
     final subject = db.insertNTripleTerm(
         NTripleTerm(termType: NTripleTermType.iri, value: "Subject"));
 
-    final predicate1 = db.insertNTripleTerm(
+    db.insertNTripleTerm(
         NTripleTerm(termType: NTripleTermType.iri, value: "Predicate1"));
-    final object1 = db.insertNTripleTerm(
+    db.insertNTripleTerm(
         NTripleTerm(termType: NTripleTermType.iri, value: "Object1"));
 
     final predicate2 = db.insertNTripleTerm(
         NTripleTerm(termType: NTripleTermType.iri, value: "Predicate2"));
-    final object2 = db.insertNTripleTerm(
+    db.insertNTripleTerm(
         NTripleTerm(termType: NTripleTermType.iri, value: "Object2"));
 
     db.insertNTriple(
@@ -148,13 +148,21 @@ void main() {
 
     var results = db.getPredicatesAndObjects(db.selectUuid(amin)!);
     expect(results.length, 1);
-    expect(results.elementAt(0).item1, drivesUuid);
-    expect(results.elementAt(0).item2, carUuid);
+    expect(results
+        .elementAt(0)
+        .item1, drivesUuid);
+    expect(results
+        .elementAt(0)
+        .item2, carUuid);
 
     results = db.getSubjectsAndPredicates(db.selectUuid(car)!);
     expect(results.length, 1);
-    expect(results.elementAt(0).item1, aminUuid);
-    expect(results.elementAt(0).item2, drivesUuid);
+    expect(results
+        .elementAt(0)
+        .item1, aminUuid);
+    expect(results
+        .elementAt(0)
+        .item2, drivesUuid);
 
     results = db.getPredicatesAndObjects(db.selectUuid(drives)!);
     expect(results.length, 0);

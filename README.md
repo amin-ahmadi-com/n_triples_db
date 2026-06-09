@@ -13,5 +13,5 @@ To use this package, add `n_triples_db` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  n_triples_db: ^0.2.0
+   n_triples_db: ^0.3.0
 ```

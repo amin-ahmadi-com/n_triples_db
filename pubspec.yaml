@@ -1,6 +1,6 @@
 name: n_triples_db
 description: Store N-Triples in SQLite. This package is tightly related to n_triples_parser package, and provides a storage mechanism for parsed N-Triples.
-version: 0.2.0
+version: 0.3.0
 homepage: https://github.com/amin-ahmadi-com/n_triples_db
 
 environment:
